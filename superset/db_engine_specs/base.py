@@ -1134,8 +1134,9 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
         cte = None
         sql_remainder = None
         sql = sql.strip(" \t\n;")
+        sql_statement = sqlparse.format(sql, strip_comments=True)
         query_limit: int | None = sql_parse.extract_top_from_query(
-            sql, cls.top_keywords
+            sql_statement, cls.top_keywords
         )
         if not limit:
             final_limit = query_limit
@@ -1144,7 +1145,7 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
         else:
             final_limit = limit
         if not cls.allows_cte_in_subquery:
-            cte, sql_remainder = sql_parse.get_cte_remainder_query(sql)
+            cte, sql_remainder = sql_parse.get_cte_remainder_query(sql_statement)
         if cte:
             str_statement = str(sql_remainder)
             cte = cte + "\n"
@@ -2184,6 +2185,7 @@ class BaseEngineSpec:  # pylint: disable=too-many-public-methods
         return {
             "supports_file_upload": cls.supports_file_upload,
             "disable_ssh_tunneling": cls.disable_ssh_tunneling,
+            "supports_dynamic_catalog": cls.supports_dynamic_catalog,
         }
 
     @classmethod
